@@ -1,0 +1,450 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "FirewallDnsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access PAN Firewall VM."
+      },
+      "defaultValue": "pan-fw"
+    },
+    "vmName": {
+      "type": "string",
+      "metadata": {
+          "description": "Name for your VM-Series Firewall"
+      },
+      "maxLength": 57
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The username for the administrator account on the VM-Series firewall."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the administrator account for the VM-Series firewall.. Must be specified if Authentication Type is 'password'."
+      }
+    },
+    "bootstrapStorageAccount": {
+      "type": "string",
+      "metadata":{
+        "description": "The name of the storage account that contains the bootstrap file share."
+      }
+    },
+   "bootstrapStorageAccountAccessKey": {
+      "type": "securestring",
+      "metadata":{
+        "description": "The access key for the bootstrap storage account."
+      }
+   },
+  "bootstrapFileShare": {
+      "type": "string",
+      "metadata":{
+          "description": "The name of the file share that contains the bootstrap folders."
+      }
+   },
+  "bootstrapSharedDir": {
+      "type": "string",
+      "defaultValue": ".",
+      "metadata":{
+              "description": "(OPTIONAL) The directory name under file share that contains the bootstrap folders."
+      }
+  },
+    "imagePublisher": {
+      "type": "string",
+      "defaultValue": "paloaltonetworks",
+      "metadata": {
+        "description": "Image Publisher"
+      }
+    },
+    "imageOffer": {
+      "type": "string",
+      "defaultValue": "vmseries-flex",
+      "metadata": {
+        "description": "Image Offer"
+      }
+    },
+    "imageVersion": {
+            "type": "string",
+            "allowedValues": [
+                "latest",
+                "10.1.2"
+            ],
+            "defaultValue": "latest",
+            "metadata": {
+                "description": "PAN OS Version"
+            }
+    },
+    "imageSKU": {
+      "type": "string",
+      "defaultValue": "byol",
+      "allowedValues": [
+                "byol",
+                "bundle1",
+                "bundle2"
+            ],
+      "metadata": {
+        "description": "Image SKU"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D3_v2",
+      "allowedValues": [
+                "Standard_D3",
+                "Standard_D4",
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D5_v2",
+                "Standard_D3_v3",
+                "Standard_D4_v3",
+                "Standard_D8_v3",
+                "Standard_D16_v3",
+                "Standard_DS3_v2",
+                "Standard_DS4_v2",
+                "Standard_DS5_v2",
+                "Standard_DS3_v3",
+                "Standard_DS4_v3",
+                "Standard_DS16_v3",
+                "Standard_A4",
+                "Standard_F8s_v2",
+                "Standard_F32s_v2",
+                "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D2_v4",
+                "Standard_D4_v4",
+                "Standard_D8_v4",
+                "Standard_D16_v4"
+            ],
+      "metadata": {
+        "description": "Azure VM size for VM-Series"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus2euap",
+      "metadata": {
+        "description": "Location to deploy all the resources in.ex. eastus2euap"
+      }
+    }
+  },
+  "variables": {
+    "providerDataNicName": "ProviderDataNic",
+    "providerMgmtNicName": "ProviderMgmtNic",
+    "providerVmName": "[parameters('vmName')]",
+    "providerVnetName": "ProviderVnet",
+    "providerLBName": "ProviderLB",
+    "providerFeipName": "FEIpconfig1",
+    "networkSecurityGroupName": "networkSecurityGroup1",
+    "providerLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('providerLBName'))]",
+    "providerVnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('providerVnetName'))]",
+    "providerAddressPrefix": "10.0.0.0/16",
+    "httplbProbeName": "provider_http_health_probe",
+    "providerMgmtSubnet": "Subnet-mgmt",
+    "providerDataSubnet": "Subnet-data",
+    "providerMgmtSubnetPrefix": "10.0.1.0/24",
+    "providerDataSubnetPrefix": "10.0.0.0/24",
+    "providerDataSubnetId": "[concat(variables('providerVnetID'),'/subnets/',variables ('providerDataSubnet'))]",
+    "providerMgmtSubnetId": "[concat(variables('providerVnetID'),'/subnets/',variables ('providerMgmtSubnet'))]",
+    "fwpublicIPName": "fwPublicIP",
+    "dnsnamefw": "[parameters('FirewallDnsName')]",
+    "publicIPAddressType": "Static",
+    "customDataField": "[concat('storage-account=', parameters('bootstrapStorageAccount'), ',access-key=', parameters('bootstrapStorageAccountAccessKey'), ',file-share=', parameters('bootstrapFileShare'),',share-directory=', parameters('bootstrapSharedDir'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "unblock_all_tcp_rule",
+            "properties": {
+              "description": "unblock_all_tcp_rule",
+              "protocol": "Tcp",
+              "sourcePortRange": "0-65535",
+              "destinationPortRange": "0-65535",
+              "sourceAddressPrefix": "0.0.0.0/0",
+              "destinationAddressPrefix": "0.0.0.0/0",
+              "access": "Allow",
+              "priority": 123,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "unblock_all_tcp_outrule",
+            "properties": {
+              "description": "unblock_all_tcp_outrule",
+              "protocol": "Tcp",
+              "sourcePortRange": "0-65535",
+              "destinationPortRange": "0-65535",
+              "sourceAddressPrefix": "0.0.0.0/0",
+              "destinationAddressPrefix": "0.0.0.0/0",
+              "access": "Allow",
+              "priority": 123,
+              "direction": "Outbound"
+            }
+          },
+          {
+            "name": "unblock_all_udp_ports",
+            "properties": {
+              "description": "Unblock_all_udp_ports",
+              "protocol": "Udp",
+              "sourcePortRange": "0-65535",
+              "destinationPortRange": "0-65535",
+              "sourceAddressPrefix": "0.0.0.0/0",
+              "destinationAddressPrefix": "0.0.0.0/0",
+              "access": "Allow",
+              "priority": 125,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('providerVnetName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('providerAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('providerMgmtSubnet')]",
+            "properties": {
+              "addressPrefix": "[variables('providerMgmtSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('providerDataSubnet')]",
+            "properties": {
+              "addressPrefix": "[variables('providerDataSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2021-05-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('providerDataNicName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('providerLBName'))]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "enableAcceleratedNetworking": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfig2",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('providerDataSubnetId')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(variables('providerLbID'), '/backendAddressPools/BackendPool1')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2021-05-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('fwpublicIPName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsnamefw')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('providerMgmtNicName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('fwpublicIPName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                     "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('fwpublicIPName'))]"
+              },
+              "subnet": {
+                "id": "[variables('providerMgmtSubnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2020-08-01",
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('providerLBName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]"
+      ],
+      "sku": {
+        "name": "Gateway"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('providerFeipName')]",
+            "properties": {
+              "subnet": {
+                "id": "[variables('providerDataSubnetId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "BackendPool1",
+            "properties": {
+              "tunnelInterfaces": [
+                {
+                  "port": 2000,
+                  "Identifier": 800,
+                  "Protocol": "VxLan",
+                  "Type": "Internal"
+                },
+                {
+                  "port": 2001,
+                  "Identifier": 801,
+                  "Protocol": "VxLan",
+                  "Type": "External"
+                }
+              ]
+            }
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "LbRule1",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(variables('providerLbID'),'/frontendIPConfigurations/FEIpconfig1')]"
+              },
+              "backendPort": 0,
+              "frontendPort": 0,
+              "protocol": "All",
+              "enableHighAvailability": true,
+              "BackendAddressPools": [
+                {
+                  "id": "[concat(variables('providerLbID'),'/backendAddressPools/BackendPool1')]"
+                }
+              ],
+              "probe": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('providerLBName'), variables('httplbProbeName'))]"
+              }
+            }
+          }
+        ],
+        "probes": [
+            {
+              "name": "[variables('httplbProbeName')]",
+              "type": "Microsoft.Network/loadBalancers/probes",
+              "properties": {
+                  "protocol": "Tcp",
+                  "port": 80,
+                  "intervalInSeconds": 5,
+                  "numberOfProbes": 2
+              }
+            }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('providerVmName')]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('providerMgmtNicName'))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('providerDataNicName'))]"
+      ],
+      "plan": {
+         "name": "[parameters('imageSKU')]",
+         "product": "[parameters('imageOffer')]",
+         "publisher": "[parameters('imagePublisher')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('providerVmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[base64(variables('customDataField'))]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('imagePublisher')]",
+            "offer": "[parameters('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "[parameters('imageVersion')]"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('providerMgmtNicName'))]",
+              "properties": {
+                "primary": true
+              }
+            },
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('providerDataNicName'))]",
+              "properties": {
+                "primary": false
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
