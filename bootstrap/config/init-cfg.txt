@@ -1,0 +1,1 @@
+plugin-op-commands=azure-gwlb-inspect:enable
