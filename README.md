@@ -18,11 +18,11 @@ https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-l
 
 ## **Part 1: Deploy Provider Ressources**
 
-[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure_GWLB%2Fmaster%2Fprovider-simple-lb.json)
+[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fprovider-simple-lb.json)
 
 ## **Part 1: Deploy Consumer Ressources**
 
-[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure_GWLB%2Fmaster%2Fconsumer-simple-lb.json)
+[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fconsumer-simple-lb.json)
 
 
 ## **Requirements:**
