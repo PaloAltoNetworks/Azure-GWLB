@@ -12,7 +12,7 @@ https://docs.paloaltonetworks.com/vm-series/9-1/vm-series-deployment/license-the
 
 
 <p align="center">
-<img src="https://github.com/PaloAltoNetworks/Azure_GWLB/blob/master/Images/azure_gwlb.webp">
+<img src="https://github.com/PaloAltoNetworks/Azure-GWLB/blob/master/Images/azure_gwlb.webp">
 https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-load-balancer/
 </p>
 
