@@ -369,7 +369,6 @@
               "backendPort": 0,
               "frontendPort": 0,
               "protocol": "All",
-              "enableHighAvailability": true,
               "BackendAddressPools": [
                 {
                   "id": "[concat(variables('providerLbID'),'/backendAddressPools/BackendPool1')]"
