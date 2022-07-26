@@ -1,1 +1,1 @@
-plugin-op-commands=azure-gwlb-inspect:enable
+plugin-op-commands=azure-gwlb-inspect:enable+internal-port-2000+external-port-2001+internal-vni-800+external-vni-801
