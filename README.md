@@ -46,4 +46,4 @@ https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-l
 
 ## **Requirements:**
 
-- Minimum of PAN-OS 10.1.2 and vm-series plugin 2.1.2 is required
+- Minimum of PAN-OS 10.1.4 and vm-series plugin 2.1.4 is required
