@@ -86,8 +86,6 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
 
 `plugin-op-commands=azure-gwlb-inspect:enable+internal-port-3000+external-port-3001+internal-vni-900,external-vni-901`
 
-
-
 <p align="center">
 <img src="https://github.com/PaloAltoNetworks/Azure-GWLB/blob/master/Images/azure_gwlb.webp">
 https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-load-balancer/
@@ -114,5 +112,4 @@ Create resource-group in a supported region of your choice.
 **Consumer Deployment**
 
 `az deployment group create --name consumertemplate --resource-group < resource-group > --template-file consumer-simple-lb.json --parameters adminUsername=ubuntu adminPassword=< password > providerResourceGroup=< resource-group >`
-
 
