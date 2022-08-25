@@ -1,5 +1,12 @@
 # **Azure Gateway Load Balancer**
 
+<p align="left">
+<img src="https://github.com/PaloAltoNetworks/Azure-GWLB/blob/main/Images/azure_gwlb.webp">
+ https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-load-balancer/
+</p>
+
+
+
 ## **Requirements:**
 
 - Minimum version of PAN-OS `10.1.4` and vm-series plugin `2.1.4` 
@@ -76,7 +83,7 @@
 
 ## **NOTE**
 
-`**init-cfg.txt**` in the bootstrap folder should include this:
+**`init-cfg.txt`** in the bootstrap folder should include this:
 
 To deploy the solution with default ports
 
@@ -86,10 +93,6 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
 
 `plugin-op-commands=azure-gwlb-inspect:enable+internal-port-3000+external-port-3001+internal-vni-900,external-vni-901`
 
-<p align="center">
-<img src="https://github.com/PaloAltoNetworks/Azure-GWLB/blob/master/Images/azure_gwlb.webp">
-https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-load-balancer/
-</p>
 
 ## **Part 1: Deploy Provider Resources**
 
@@ -112,4 +115,5 @@ Create resource-group in a supported region of your choice.
 **Consumer Deployment**
 
 `az deployment group create --name consumertemplate --resource-group < resource-group > --template-file consumer-simple-lb.json --parameters adminUsername=ubuntu adminPassword=< password > providerResourceGroup=< resource-group >`
+
 
