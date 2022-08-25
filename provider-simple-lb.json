@@ -5,7 +5,7 @@
     "FirewallDnsName": {
       "type": "string",
       "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access PAN Firewall VM."
+        "description": "Unique DNS Name for the Public IP used to access PANW Firewall VM"
       },
       "defaultValue": "pan-fw"
     },
@@ -19,38 +19,38 @@
     "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "The username for the administrator account on the VM-Series firewall."
+        "description": "The username for the administrator account on the VM-Series firewall"
       }
     },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Password for the administrator account for the VM-Series firewall.. Must be specified if Authentication Type is 'password'."
+        "description": "Password for the administrator account for the VM-Series firewall" 
       }
     },
     "bootstrapStorageAccount": {
       "type": "string",
       "metadata":{
-        "description": "The name of the storage account that contains the bootstrap file share."
+        "description": "The name of the storage account that contains the bootstrap file share"
       }
     },
    "bootstrapStorageAccountAccessKey": {
       "type": "securestring",
       "metadata":{
-        "description": "The access key for the bootstrap storage account."
+        "description": "The access key for the bootstrap storage account"
       }
    },
   "bootstrapFileShare": {
       "type": "string",
       "metadata":{
-          "description": "The name of the file share that contains the bootstrap folders."
+          "description": "The name of the file share that contains the bootstrap folders"
       }
    },
   "bootstrapSharedDir": {
       "type": "string",
       "defaultValue": "",
       "metadata":{
-              "description": "(OPTIONAL) The directory name under file share that contains the bootstrap folders."
+              "description": "(OPTIONAL) The directory name under file share that contains the bootstrap folders"
       }
   },
     "imageVersion": {
@@ -61,7 +61,7 @@
             ],
             "defaultValue": "latest",
             "metadata": {
-                "description": "PAN OS Version"
+                "description": "PAN-OS Version"
             }
     },
     "imageSKU": {
@@ -106,28 +106,28 @@
                 "Standard_D16_v4"
             ],
       "metadata": {
-        "description": "Azure VM size for VM-Series"
+        "description": "Azure VMsize for VM-Series Firewall"
       }
     },
     "AddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
-        "description": ""
+        "description": "The CIDR range for the Provider VNET"
       }
     },
     "ManagementSubnet": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
-        "description": ""
+        "description": "Subnet Prefix for Provider management subnet"
       }
     },
     "DataSubnet": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
       "metadata": {
-        "description": ""
+        "description": "Subnet Prefix for Provider Data subnet"
       }
     }
   },

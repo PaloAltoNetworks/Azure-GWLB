@@ -5,21 +5,21 @@
       "providerResourceGroup": {
       "type": "string",
       "metadata": {
-        "description": "provider resource group"
+        "description": "Provider resource group"
         }
       },  
       "providerLBName": {
         "type": "string",
         "defaultValue": "ProviderLB",
         "metadata": {
-          "description": "Place here the name of your Provider LB Frontend Private IP"
+          "description": " Name of your Provider LB "
         }
       },  
       "providerFrontendIPName": {
         "type": "string",
         "defaultValue": "FEIpconfig1",
         "metadata": {
-          "description": "Place here the name of your Provider LB Frontend Private IP"
+          "description": "Name of your Provider LB Frontend Private IP"
         }
       },
       "adminUsername": {
@@ -60,35 +60,35 @@
         "type": "string",
         "defaultValue": "Standard_A1_v2",
         "metadata": {
-          "description": "Size of the VM"
+          "description": "Size of the ubuntu VM"
         }
       },
       "VNETName": {
         "type": "string",
         "defaultValue": "consumerVNET",
         "metadata": {
-          "description": "Size of the VM"
+          "description": "Name of the consumer virtual network"
         }
       },
       "SubnetName": {
         "type": "string",
         "defaultValue": "Subnet-1",
         "metadata": {
-          "description": "Size of the VM"
+          "description": "Name of the consumer subnet"
         }
       },
       "VNETPrefix": {
         "type": "string",
         "defaultValue": "10.0.0.0/16",
         "metadata": {
-          "description": "Size of the VM"
+          "description": "Consumer VNET CIDR"
         }
       },
       "SubnetPrefix": {
         "type": "string",
         "defaultValue": "10.0.0.0/24",
         "metadata": {
-          "description": "Size of the VM"
+          "description": "Consumer subnet prefix"
         }
       }
     },

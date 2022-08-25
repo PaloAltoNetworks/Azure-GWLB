@@ -52,11 +52,11 @@ Configure the template Parameters for your Azure GWLB deployment
    
 11. **imageVersion**
    
-   The Pan-OS image version. We support from `10.1.4` Add the required version in the allowed values to use Pan-OS version of your preference
+    The Pan-OS image version. We support from `10.1.4` Add the required version in the allowed values to use Pan-OS version of your preference
    
 13. **imageSKU**
 
-   Licensing model - byol, bundle1, bundle2
+    Licensing model - byol, bundle1, bundle2
    
 15.**vmSize**
    
