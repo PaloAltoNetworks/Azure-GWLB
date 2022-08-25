@@ -57,7 +57,7 @@
             "type": "string",
             "allowedValues": [
                 "latest",
-                "10.1.2"
+                "10.1.4"
             ],
             "defaultValue": "latest",
             "metadata": {
@@ -113,21 +113,21 @@
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
-        "description": "Location to deploy all the resources in.ex. eastus2euap"
+        "description": ""
       }
     },
     "ManagementSubnet": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
-        "description": "Location to deploy all the resources in.ex. eastus2euap"
+        "description": ""
       }
     },
     "DataSubnet": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
       "metadata": {
-        "description": "Location to deploy all the resources in.ex. eastus2euap"
+        "description": ""
       }
     }
   },
