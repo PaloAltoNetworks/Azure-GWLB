@@ -18,77 +18,65 @@
 
 ## **Steps to deploy the template**
 
-- ### **Provider Template Parameters**
+ ### **Provider Template Parameters**
 
-Configure the template Parameters for your Azure GWLB deployment
+   Configure the template Parameters for your Azure GWLB deployment
 
-1. **FirewallDnsName**
+- **FirewallDnsName**
 
-   Unique DNS Name for the Public IP used to access PAN Firewall VM.
+    Unique DNS Name for the Public IP used to access PAN Firewall VM.
    
-2. **vmName**
+- **vmName**
 
-   Name for the VM-Series Firewall
+    Name for the VM-Series Firewall
    
-3. **adminUsername**
+- **adminUsername**
  
-   The username for the account on the VM-Series firewall
+    The username for the account on the VM-Series firewall
 
-4. **adminPassword**
+- **adminPassword**
 
-   Password for the account for the VM-Series firewall. Make this parameter Optional if you choose to use any other Authentication Type
+    Password for the account for the VM-Series firewall. Make this parameter Optional if you choose to use any other Authentication Type
 
-5. **bootstrapStorageAccount**
+- **bootstrapStorageAccount**
 
-   The name of the storage account created in the Prerequisite step
+    The name of the storage account created in the Prerequisite step
    
-7. **bootstrapStorageAccountAccessKey**
+- **bootstrapStorageAccountAccessKey**
 
-   The value of the storage account access key  created in the Prerequisite step
+    The value of the storage account access key  created in the Prerequisite step
    
-9. **bootstrapFileShare**
+- **bootstrapFileShare**
 
-   The name of the storage account file share created in the Prerequisite step
+    The name of the storage account file share created in the Prerequisite step
    
-11. **imageVersion**
+- **imageVersion**
    
     The Pan-OS image version. We support from `10.1.4` Add the required version in the allowed values to use Pan-OS version of your preference
    
-13. **imageSKU**
+- **imageSKU**
 
     Licensing model - byol, bundle1, bundle2
    
-15.**vmSize**
+- **vmSize**
    
    Azure VMsize for the Firewall. Choose from the list allowed values.
  
-16.**AddressPrefix**
+- **AddressPrefix**
 
    The CIDR range for the Provider network ex. "10.0.0.0/16"
    
-17.**ManagementSubnet**
+- **ManagementSubnet**
    
    Management Subnet Prefix for Provider management subnet ex "10.0.1.0/24"
    
-18.**DataSubnet**
+- **DataSubnet**
 
    Data Subnet Prefix for Provider management subnet ex "10.0.0.0/24"
 
-
-Steps:
-
-Create resource-group in a supported region of your choice.
-az group create --name < resource-group > --location "eastus2"
-
-Provider Deployment
-az deployment group create --name providertemplate --resource-group < resource-group > --template-file provider-simple-lb.json --parameters adminUsername=< username > adminPassword=< password > vmName=< vmseries-name > FirewallDnsName=< dns name > bootstrapStorageAccount=< storagaccname > bootstrapStorageAccountAccessKey=< storageaccesskey > bootstrapFileShare=< filesharename >
-
-Consumer side Deployment
-az deployment group create --name consumertemplate --resource-group < resource-group > --template-file consumer-simple-lb.json --parameters adminUsername=ubuntu adminPassword=< password > providerResourceGroup=< resource-group >
-
 ## **NOTE**
 
-`init-cfg.txt` in the bootstrap folder should include this:
+`**init-cfg.txt**` in the bootstrap folder should include this:
 
 To deploy the solution with default ports
 
@@ -113,5 +101,18 @@ https://www.paloaltonetworks.com/blog/network-security/vm-series-azure-gateway-l
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fconsumer-simple-lb.json)
 
+## **Steps to deploy via Azure CLI**
+
+Create resource-group in a supported region of your choice.
+
+`az group create --name < resource-group > --location "eastus2"`
+
+**Provider Deployment**
+
+`az deployment group create --name providertemplate --resource-group < resource-group > --template-file provider-simple-lb.json --parameters adminUsername=< username > adminPassword=< password > vmName=< vmseries-name > FirewallDnsName=< dns name > bootstrapStorageAccount=< storagaccname > bootstrapStorageAccountAccessKey=< storageaccesskey > bootstrapFileShare=< filesharename >`
+
+**Consumer Deployment**
+
+`az deployment group create --name consumertemplate --resource-group < resource-group > --template-file consumer-simple-lb.json --parameters adminUsername=ubuntu adminPassword=< password > providerResourceGroup=< resource-group >`
 
 
