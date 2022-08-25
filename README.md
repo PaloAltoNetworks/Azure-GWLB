@@ -75,11 +75,11 @@
    
 - **ManagementSubnet**
    
-   Management Subnet Prefix for Provider management subnet ex "10.0.1.0/24"
+   Subnet Prefix for Provider management subnet ex "10.0.1.0/24"
    
 - **DataSubnet**
 
-   Data Subnet Prefix for Provider management subnet ex "10.0.0.0/24"
+   Subnet Prefix for Provider data subnet ex "10.0.0.0/24"
 
 ## **NOTE**
 
