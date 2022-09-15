@@ -96,7 +96,7 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
 
 ## **Part 1: Deploy Security Stack Resources**
 
-[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fprovider-simple-lb.json)
+[<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fsecurity-stack.json)
 
 ## **Part 2: Deploy Application Stack Resources**
 
