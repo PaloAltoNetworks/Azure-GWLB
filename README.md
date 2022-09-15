@@ -94,11 +94,11 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
 `plugin-op-commands=azure-gwlb-inspect:enable+internal-port-3000+external-port-3001+internal-vni-900,external-vni-901`
 
 
-## **Part 1: Deploy Provider Resources**
+## **Part 1: Deploy Security Stack Resources**
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fprovider-simple-lb.json)
 
-## **Part 2: Deploy Consumer Resources**
+## **Part 2: Deploy Application Stack Resources**
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fconsumer-simple-lb.json)
 
