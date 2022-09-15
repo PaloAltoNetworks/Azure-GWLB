@@ -12,7 +12,7 @@
     "vmName": {
       "type": "string",
       "metadata": {
-          "description": "Name for your VM-Series Firewall"
+          "description": "Enter the name for your VM-Series Firewall"
       },
       "maxLength": 57
     },
@@ -59,7 +59,7 @@
                 "latest",
                 "10.1.4"
             ],
-            "defaultValue": "latest",
+            "defaultValue": "10.1.4",
             "metadata": {
                 "description": "PAN-OS Version"
             }
@@ -106,49 +106,49 @@
                 "Standard_D16_v4"
             ],
       "metadata": {
-        "description": "Azure VMsize for VM-Series Firewall"
+        "description": "Azure VMsize for VM-Series Firewall. Find the supported instance size at https://docs.paloaltonetworks.com/vm-series/10-1/vm-series-performance-capacity/vm-series-performance-capacity/vm-series-on-azure-models-and-vms"
       }
     },
     "AddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
-        "description": "The CIDR range for the Provider VNET"
+        "description": "The CIDR range for the Security VNET"
       }
     },
     "ManagementSubnet": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
-        "description": "Subnet Prefix for Provider management subnet"
+        "description": "Subnet Prefix for Security management subnet"
       }
     },
     "DataSubnet": {
       "type": "string",
       "defaultValue": "10.0.0.0/24",
       "metadata": {
-        "description": "Subnet Prefix for Provider Data subnet"
+        "description": "Subnet Prefix for Security Data subnet"
       }
     }
   },
   "variables": {
-    "providerDataNicName": "ProviderDataNic",
-    "providerMgmtNicName": "ProviderMgmtNic",
-    "providerVmName": "[parameters('vmName')]",
-    "providerVnetName": "ProviderVnet",
-    "providerLBName": "ProviderLB",
-    "providerFeipName": "FEIpconfig1",
+    "secDataNicName": "secDataNic",
+    "secMgmtNicName": "secMgmtNic",
+    "secVMName": "[parameters('vmName')]",
+    "secVNetName": "secVnet",
+    "gwLBName": "securityLB",
+    "gwLBFeipName": "FEIpconfig1",
     "networkSecurityGroupName": "networkSecurityGroup1",
-    "providerLbID": "[resourceId('Microsoft.Network/loadBalancers',variables('providerLBName'))]",
-    "providerVnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('providerVnetName'))]",
-    "providerAddressPrefix": "[parameters('AddressPrefix')]",
-    "httplbProbeName": "provider_http_health_probe",
-    "providerMgmtSubnet": "Subnet-mgmt",
-    "providerDataSubnet": "Subnet-data",
-    "providerMgmtSubnetPrefix": "[parameters('ManagementSubnet')]",
-    "providerDataSubnetPrefix": "[parameters('DataSubnet')]",
-    "providerDataSubnetId": "[concat(variables('providerVnetID'),'/subnets/',variables ('providerDataSubnet'))]",
-    "providerMgmtSubnetId": "[concat(variables('providerVnetID'),'/subnets/',variables ('providerMgmtSubnet'))]",
+    "secLBID": "[resourceId('Microsoft.Network/loadBalancers',variables('gwLBName'))]",
+    "secVNetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('secVNetName'))]",
+    "secAddressPrefix": "[parameters('AddressPrefix')]",
+    "secLBProbeName": "sec_http_health_probe",
+    "secMgmtSubnet": "Subnet-mgmt",
+    "secDataSubnet": "Subnet-data",
+    "secMgmtSubnetPrefix": "[parameters('ManagementSubnet')]",
+    "secDataSubnetPrefix": "[parameters('DataSubnet')]",
+    "secDataSubnetId": "[concat(variables('secVNetID'),'/subnets/',variables ('secDataSubnet'))]",
+    "secMgmtSubnetId": "[concat(variables('secVNetID'),'/subnets/',variables ('secMgmtSubnet'))]",
     "fwpublicIPName": "fwPublicIP",
     "dnsnamefw": "[parameters('FirewallDnsName')]",
     "publicIPAddressType": "Static",
@@ -212,7 +212,7 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('providerVnetName')]",
+      "name": "[variables('secVNetName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
@@ -220,23 +220,23 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('providerAddressPrefix')]"
+            "[variables('secAddressPrefix')]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('providerMgmtSubnet')]",
+            "name": "[variables('secMgmtSubnet')]",
             "properties": {
-              "addressPrefix": "[variables('providerMgmtSubnetPrefix')]",
+              "addressPrefix": "[variables('secMgmtSubnetPrefix')]",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
               }
             }
           },
           {
-            "name": "[variables('providerDataSubnet')]",
+            "name": "[variables('secDataSubnet')]",
             "properties": {
-              "addressPrefix": "[variables('providerDataSubnetPrefix')]",
+              "addressPrefix": "[variables('secDataSubnetPrefix')]",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
               }
@@ -248,11 +248,11 @@
     {
       "apiVersion": "2021-05-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('providerDataNicName')]",
+      "name": "[variables('secDataNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', variables('providerLBName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', variables('secVNetName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('gwLBName'))]"
       ],
       "properties": {
         "enableIPForwarding": true,
@@ -263,11 +263,11 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('providerDataSubnetId')]"
+                "id": "[variables('secDataSubnetId')]"
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat(variables('providerLbID'), '/backendAddressPools/BackendPool1')]"
+                  "id": "[concat(variables('secLBID'), '/backendAddressPools/BackendPool1')]"
                 }
               ]
             }
@@ -293,10 +293,10 @@
     {
       "apiVersion": "2016-09-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('providerMgmtNicName')]",
+      "name": "[variables('secMgmtNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('secVNetName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('fwpublicIPName'))]"
       ],
       "properties": {
@@ -309,7 +309,7 @@
                      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('fwpublicIPName'))]"
               },
               "subnet": {
-                "id": "[variables('providerMgmtSubnetId')]"
+                "id": "[variables('secMgmtSubnetId')]"
               }
             }
           }
@@ -319,10 +319,10 @@
     {
       "apiVersion": "2020-08-01",
       "type": "Microsoft.Network/loadBalancers",
-      "name": "[variables('providerLBName')]",
+      "name": "[variables('gwLBName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('providerVnetName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', variables('secVNetName'))]"
       ],
       "sku": {
         "name": "Gateway"
@@ -330,10 +330,10 @@
       "properties": {
         "frontendIPConfigurations": [
           {
-            "name": "[variables('providerFeipName')]",
+            "name": "[variables('gwLBFeipName')]",
             "properties": {
               "subnet": {
-                "id": "[variables('providerDataSubnetId')]"
+                "id": "[variables('secDataSubnetId')]"
               }
             }
           }
@@ -364,25 +364,25 @@
             "name": "LbRule1",
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(variables('providerLbID'),'/frontendIPConfigurations/FEIpconfig1')]"
+                "id": "[concat(variables('secLBID'),'/frontendIPConfigurations/FEIpconfig1')]"
               },
               "backendPort": 0,
               "frontendPort": 0,
               "protocol": "All",
               "BackendAddressPools": [
                 {
-                  "id": "[concat(variables('providerLbID'),'/backendAddressPools/BackendPool1')]"
+                  "id": "[concat(variables('secLBID'),'/backendAddressPools/BackendPool1')]"
                 }
               ],
               "probe": {
-                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('providerLBName'), variables('httplbProbeName'))]"
+                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('gwLBName'), variables('secLBProbeName'))]"
               }
             }
           }
         ],
         "probes": [
             {
-              "name": "[variables('httplbProbeName')]",
+              "name": "[variables('secLBProbeName')]",
               "type": "Microsoft.Network/loadBalancers/probes",
               "properties": {
                   "protocol": "Tcp",
@@ -396,12 +396,12 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('providerVmName')]",
+      "name": "[variables('secVMName')]",
       "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('providerMgmtNicName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('providerDataNicName'))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('secMgmtNicName'))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('secDataNicName'))]"
       ],
       "plan": {
          "name": "[parameters('imageSKU')]",
@@ -413,7 +413,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('providerVmName')]",
+          "computerName": "[variables('secVMName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "customData": "[base64(variables('customDataField'))]"
@@ -432,13 +432,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('providerMgmtNicName'))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('secMgmtNicName'))]",
               "properties": {
                 "primary": true
               }
             },
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('providerDataNicName'))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('secDataNicName'))]",
               "properties": {
                 "primary": false
               }

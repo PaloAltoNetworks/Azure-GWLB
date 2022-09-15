@@ -2,29 +2,29 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "providerResourceGroup": {
+      "securityResourceGroup": {
       "type": "string",
       "metadata": {
-        "description": "Provider resource group"
+        "description": "security-stack resource group"
         }
       },  
-      "providerLBName": {
+      "gwLBName": {
         "type": "string",
-        "defaultValue": "ProviderLB",
+        "defaultValue": "securityLB",
         "metadata": {
-          "description": " Name of your Provider LB "
+          "description": " Name of the Gateway Loadbalancer in security-stack"
         }
       },  
-      "providerFrontendIPName": {
+      "gwLBFrontendIPName": {
         "type": "string",
         "defaultValue": "FEIpconfig1",
         "metadata": {
-          "description": "Name of your Provider LB Frontend Private IP"
+          "description": "Name of your Gateway Loadbalancer Frontend Private IP"
         }
       },
       "adminUsername": {
         "type": "string",
-        "defaultValue": "ubuntu",
+        "defaultValue": "paloalto",
         "metadata": {
           "description": "Admin username of os profile"
         }
@@ -60,52 +60,52 @@
         "type": "string",
         "defaultValue": "Standard_A1_v2",
         "metadata": {
-          "description": "Size of the ubuntu VM"
+          "description": "Size of the application VM"
         }
       },
       "VNETName": {
         "type": "string",
-        "defaultValue": "consumerVNET",
+        "defaultValue": "appVNET",
         "metadata": {
-          "description": "Name of the consumer virtual network"
+          "description": "Name of the application virtual network"
         }
       },
       "SubnetName": {
         "type": "string",
-        "defaultValue": "Subnet-1",
+        "defaultValue": "Subnet-app",
         "metadata": {
-          "description": "Name of the consumer subnet"
+          "description": "Name of the application subnet"
         }
       },
       "VNETPrefix": {
         "type": "string",
-        "defaultValue": "10.0.0.0/16",
+        "defaultValue": "10.240.0.0/16",
         "metadata": {
-          "description": "Consumer VNET CIDR"
+          "description": "Enter your Application VNET CIDR"
         }
       },
       "SubnetPrefix": {
         "type": "string",
-        "defaultValue": "10.0.0.0/24",
+        "defaultValue": "10.240.0.0/24",
         "metadata": {
-          "description": "Consumer subnet prefix"
+          "description": "Enter your Application subnet prefix"
         }
       }
     },
     "variables": {
       "networkSecurityGroupName": "networkSecurityGroup1",
-      "consumerLbName": "consumerLB",
-      "consumerVmName": "consumerVM",
-      "consumerPublicIPAddressName": "consumerPip",
-      "consumerVnetName": "[parameters('VNETName')]",
-      "consumerSubnetName": "[parameters('SubnetName')]",
-      "consumerNicName": "ConsumerNic",
-      "consumerSubnetPrefix": "[parameters('SubnetPrefix')]",
-      "consumerAddressPrefix": "[parameters('VNETPrefix')]",
+      "spokeLBName": "spokeLB",
+      "appVmName": "applicationVM",
+      "appPublicIPAddressName": "appPip",
+      "appVNetName": "[parameters('VNETName')]",
+      "appSubnetName": "[parameters('SubnetName')]",
+      "appVMNicName": "appNic",
+      "appSubnetPrefix": "[parameters('SubnetPrefix')]",
+      "appAddressPrefix": "[parameters('VNETPrefix')]",
       "publicIPAddressType": "Static",
-      "consumerVnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('consumerVnetName'))]",
-      "consumerSubnetRef": "[concat(variables('consumerVnetID'),'/subnets/',variables('consumerSubnetName'))]",
-      "consumerlbID": "[resourceId('Microsoft.Network/loadBalancers',variables('consumerLbName'))]",
+      "appVNetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('appVNetName'))]",
+      "appSubnetRef": "[concat(variables('appVNetID'),'/subnets/',variables('appSubnetName'))]",
+      "spokeLBID": "[resourceId('Microsoft.Network/loadBalancers',variables('spokeLBName'))]",
       "SubscriptionsID": "[subscription().subscriptionId]",
       "storageAccountDomain": "core.windows.net"
     },
@@ -165,7 +165,7 @@
       {
         "apiVersion": "2017-08-01",
         "type": "Microsoft.Network/publicIPAddresses",
-        "name": "[variables('consumerPublicIPAddressName')]",
+        "name": "[variables('appPublicIPAddressName')]",
         "location": "[resourceGroup().location]",
         "sku": {
           "name": "Standard"
@@ -178,11 +178,11 @@
       {
         "apiVersion": "2015-05-01-preview",
         "type": "Microsoft.Network/networkInterfaces",
-        "name": "[variables('consumerNicName')]",
+        "name": "[variables('appVMNicName')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[concat('Microsoft.Network/virtualNetworks/', variables('consumerVnetName'))]",
-          "[concat('Microsoft.Network/loadBalancers/', variables('consumerLbName'))]"
+          "[concat('Microsoft.Network/virtualNetworks/', variables('appVNetName'))]",
+          "[concat('Microsoft.Network/loadBalancers/', variables('spokeLBName'))]"
         ],
         "properties": {
           "ipConfigurations": [
@@ -191,12 +191,12 @@
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "subnet": {
-                  "id": "[variables('consumerSubnetRef')]"
+                  "id": "[variables('appSubnetRef')]"
                 },
                 "loadBalancerProbeStatus": "Up",
                 "loadBalancerBackendAddressPools": [
                   {
-                    "id": "[concat(variables('consumerLbID'), '/backendAddressPools/BackendPool1')]"
+                    "id": "[concat(variables('spokeLBID'), '/backendAddressPools/BackendPool1')]"
                   }
                 ]
               }
@@ -207,7 +207,7 @@
       {
         "apiVersion": "2015-05-01-preview",
         "type": "Microsoft.Network/virtualNetworks",
-        "name": "[variables('consumerVnetName')]",
+        "name": "[variables('appVNetName')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
           "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
@@ -215,14 +215,14 @@
         "properties": {
           "addressSpace": {
             "addressPrefixes": [
-              "[variables('consumerAddressPrefix')]"
+              "[variables('appAddressPrefix')]"
             ]
           },
           "subnets": [
             {
-              "name": "[variables('consumerSubnetName')]",
+              "name": "[variables('appSubnetName')]",
               "properties": {
-                "addressPrefix": "[variables('consumerSubnetPrefix')]",
+                "addressPrefix": "[variables('appSubnetPrefix')]",
                 "networkSecurityGroup": {
                   "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
                 }
@@ -233,18 +233,18 @@
       },
       {
         "type": "Microsoft.Compute/virtualMachines",
-        "name": "[variables('consumerVmName')]",
+        "name": "[variables('appVmName')]",
         "apiVersion": "2016-04-30-preview",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-          "[resourceId('Microsoft.Network/networkInterfaces', variables('consumerNicName'))]"
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('appVMNicName'))]"
         ],
         "properties": {
           "hardwareProfile": {
             "vmSize": "[parameters('vmSize')]"
           },
           "osProfile": {
-            "computerName": "[variables('consumerVmName')]",
+            "computerName": "[variables('appVmName')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]"
           },
@@ -262,7 +262,7 @@
           "networkProfile": {
             "networkInterfaces": [
               {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('consumerNicName'))]",
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('appVMNicName'))]",
                 "properties": {
                   "primary": true
                 }
@@ -273,11 +273,11 @@
       },
       {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('consumerVmName'),'/newuserscript')]",
+      "name": "[concat(variables('appVmName'),'/newuserscript')]",
       "apiVersion": "2021-07-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines/', variables('consumerVmName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines/', variables('appVmName'))]"
       ],
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
@@ -291,14 +291,14 @@
     },
       {
         "apiVersion": "2020-08-01",
-        "name": "[variables('consumerLbName')]",
+        "name": "[variables('spokeLBName')]",
         "type": "Microsoft.Network/loadBalancers",
         "location": "[resourceGroup().location]",
         "sku": {
           "name": "Standard"
         },
         "dependsOn": [
-          "[concat('Microsoft.Network/publicIPAddresses/', variables('consumerPublicIPAddressName'))]"
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('appPublicIPAddressName'))]"
         ],
         "properties": {
           "frontendIPConfigurations": [
@@ -306,11 +306,11 @@
               "name": "LoadBalancerFrontEnd",
               "properties": {
                 "publicIPAddress": {
-                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('consumerPublicIPAddressName'))]"
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('appPublicIPAddressName'))]"
                 },
                 "privateIPAddressVersion": "IPv4",
                 "gatewayLoadBalancer": {
-                  "id": "[concat('/subscriptions/',variables('SubscriptionsID'),'/resourceGroups/',parameters('providerResourceGroup'),'/providers/Microsoft.Network/loadBalancers/',parameters('providerLBName'),'/frontendIPConfigurations/',parameters('providerFrontendIPName'),'')]"
+                  "id": "[concat('/subscriptions/',variables('SubscriptionsID'),'/resourceGroups/',parameters('securityResourceGroup'),'/providers/Microsoft.Network/loadBalancers/',parameters('gwLBName'),'/frontendIPConfigurations/',parameters('gwLBFrontendIPName'),'')]"
                 }
               }
             }
@@ -322,7 +322,7 @@
           ],
           "probes": [
             {
-              "name": "consumer_http_health_probe",
+              "name": "spoke_http_health_probe",
               "properties": {
                   "protocol": "Tcp",
                   "port": 8080,
@@ -336,13 +336,13 @@
               "name": "LBRule",
               "properties": {
                 "frontendIPConfiguration": {
-                  "id": "[concat(variables('consumerLbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]"
+                  "id": "[concat(variables('spokeLBID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]"
                 },
                 "backendAddressPool": {
-                  "id": "[concat(variables('consumerlbID'),'/backendAddressPools/BackendPool1')]"
+                  "id": "[concat(variables('spokeLBID'),'/backendAddressPools/BackendPool1')]"
                 },
                 "probe": {
-                  "id": "[concat(variables('consumerlbID'),'/probes/consumer_http_health_probe')]"
+                  "id": "[concat(variables('spokeLBID'),'/probes/spoke_http_health_probe')]"
                 },
                 "protocol": "Tcp",
                 "enableTcpReset": true,
