@@ -102,18 +102,5 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fconsumer-simple-lb.json)
 
-## **Steps to deploy via Azure CLI**
-
-Create resource-group in a supported region of your choice.
-
-`az group create --name < resource-group > --location "eastus2"`
-
-**Provider Deployment**
-
-`az deployment group create --name providertemplate --resource-group < resource-group > --template-file provider-simple-lb.json --parameters adminUsername=< username > adminPassword=< password > vmName=< vmseries-name > FirewallDnsName=< dns name > bootstrapStorageAccount=< storagaccname > bootstrapStorageAccountAccessKey=< storageaccesskey > bootstrapFileShare=< filesharename >`
-
-**Consumer Deployment**
-
-`az deployment group create --name consumertemplate --resource-group < resource-group > --template-file consumer-simple-lb.json --parameters adminUsername=ubuntu adminPassword=< password > providerResourceGroup=< resource-group >`
 
 
