@@ -89,18 +89,60 @@ To deploy the solution with default ports
 
 `plugin-op-commands=azure-gwlb-inspect:enable`
 
+The port and VNI parameters when not specified will use the default values: Internal Port 2000 Internal VNI 800, External Port 2001 and External VNI 801. These parameters must match the GWLB backend pool tunnel interfaces properties to properly establish the service chain. If you use the custom ports, make sure to edit the security-stack.json with the custom ports in the below block.
+
 To deploy the solution with custom ports edit the `init-cfg.txt` to
 
 `plugin-op-commands=azure-gwlb-inspect:enable+internal-port-3000+external-port-3001+internal-vni-900,external-vni-901`
 
 
+```
+"backendAddressPools": [
+          {
+            "name": "BackendPool1",
+            "properties": {
+              "tunnelInterfaces": [
+                {
+                  "port": 2000,        # Change the internal port here to 3000
+                  "Identifier": 800,   # Change the identifier to 900
+                  "Protocol": "VxLan",
+                  "Type": "Internal"
+                },
+                {
+                  "port": 2001,       # Change the external port here to 900
+                  "Identifier": 801,  # Change the identifier to 901
+                  "Protocol": "VxLan",
+                  "Type": "External"
+                }
+              ]
+            }
+          }
+        ],
+```
+
 ## **Part 1: Deploy Security Stack Resources**
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fsecurity-stack.json)
+
+
+The ARM template deploys the Security stack with Gateway Loadbalancer, VM-Series firewall with GWLB bootstrap configuration , VM-Series firewall added in the backend pool of the Gateway Loadbalancer.
 
 ## **Part 2: Deploy Application Stack Resources**
 
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPaloAltoNetworks%2FAzure-GWLB%2Fmaster%2Fapplication-stack.json)
 
+The ARM template deploys the Application stack with the Loadbalancer configured with the default Load Balancer rules, Linux VM with simpleHTTP service.
 
+You can use the **application-stack.json** to deploy multiple spokes / application stacks.
 
+To test the ingress traffic,  issue the below command from a terminal
+
+```
+wget http://<FrontendIPofApplicationLB:50000>
+
+```
+or
+
+Use a browser, type in  **http://<FrontendIPofApplicationLB:50000>**
+
+You can see the secured ingress traffic sessions in the Firewall.
