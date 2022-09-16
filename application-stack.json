@@ -24,9 +24,12 @@
       },
       "adminUsername": {
         "type": "string",
-        "defaultValue": "paloalto",
+        "allowedValues": [
+           "ubuntu"
+        ],  
+        "defaultValue": "ubuntu",
         "metadata": {
-          "description": "Admin username of os profile"
+          "description": "Admin username of os profile."
         }
       },
       "adminPassword": {
@@ -94,7 +97,7 @@
     },
     "variables": {
       "networkSecurityGroupName": "networkSecurityGroup1",
-      "spokeLBName": "spokeLB",
+      "spokeLBName": "publicLB",
       "appVmName": "applicationVM",
       "appPublicIPAddressName": "appPip",
       "appVNetName": "[parameters('VNETName')]",

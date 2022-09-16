@@ -135,14 +135,16 @@ The ARM template deploys the Application stack with the Loadbalancer configured 
 
 You can use the **application-stack.json** to deploy multiple spokes / application stacks.
 
+## **Traffic Test**
+ 
 To test the ingress traffic,  issue the below command from a terminal
 
 ```
-wget http://<FrontendIPofApplicationLB:50000>
+wget http://<FrontendIPofPublicLB:50000>
 
 ```
 or
 
-Use a browser, type in  **http://<FrontendIPofApplicationLB:50000>**
+Use a browser, type in  **http://<FrontendIPofPublicLB:50000>**
 
 You can see the secured ingress traffic sessions in the Firewall.
