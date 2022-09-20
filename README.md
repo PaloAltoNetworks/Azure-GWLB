@@ -25,7 +25,7 @@
 
 ## **Steps to deploy the template**
 
- ### **Provider Template Parameters**
+ ### **Security Stack Template Parameters**
 
    Configure the template Parameters for your Azure GWLB deployment
 
@@ -71,15 +71,15 @@
  
 - **AddressPrefix**
 
-   The CIDR range for the Provider network ex. "10.0.0.0/16"
+   The CIDR range for the Security network ex. "10.0.0.0/16"
    
 - **ManagementSubnet**
    
-   Subnet Prefix for Provider management subnet ex "10.0.1.0/24"
+   Subnet Prefix for Security management subnet ex "10.0.1.0/24"
    
 - **DataSubnet**
 
-   Subnet Prefix for Provider data subnet ex "10.0.0.0/24"
+   Subnet Prefix for Security data subnet ex "10.0.0.0/24"
 
 ## **NOTE**
 
@@ -119,6 +119,30 @@ To deploy the solution with custom ports edit the `init-cfg.txt` to
           }
         ],
 ```
+
+### **Application Stack Template Parameters**
+
+- **securityResourceGroup**
+
+    Name of the Security stack resource group deployed with security-stack.json template.
+    
+- **gwLBName**
+
+    Name of the Gateway Loadbalancer deployed with security-stack.json template.
+    
+- **gwLBFrontendIPName**
+
+    Name of your Gateway Loadbalancer Frontend Private IP deployed with security-stack.json template.
+   
+- **VNETPrefix**
+
+   The CIDR range for the Application network ex. "10.240.0.0/16"
+   
+- **SubnetPrefix**
+   
+   Subnet Prefix for Application management subnet ex "10.240.0.0/24"
+    
+
 
 ## **Part 1: Deploy Security Stack Resources**
 
