@@ -349,7 +349,7 @@
                 },
                 "protocol": "Tcp",
                 "enableTcpReset": true,
-                "frontendPort": 50000,
+                "frontendPort": 8081,
                 "backendPort": 8080,
                 "enableFloatingIP": false,
                 "idleTimeoutInMinutes": 5
